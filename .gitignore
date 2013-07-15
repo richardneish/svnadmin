@@ -1,1 +1,2 @@
-.session
+scripts/config.pl
+conf/svn_admin_httpd.conf

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Subversion  eXtended Administration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/bootstrap.min.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <link rel="stylesheet" href="./css/bootstrap-responsive.min.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <script src="./js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+  <div class="navbar navbar-static-top">
+    <div class="navbar-inner">
+      <span class="brand">Subversion eXtended Administration</span>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="row">
+      <div class="span12">
+        <h1>Hello <TMPL_VAR NAME="USERNAME">,</h1>
+        <TMPL_IF NAME="ADMIN_REPOS"><p>You are administrator for
+          <TMPL_LOOP NAME="ADMIN_REPOS">
+            <TMPL_IF NAME="CURRENT">
+              <TMPL_VAR NAME="REPOSITORY">
+            <TMPL_ELSE>
+              <a class="label label-info" href="<TMPL_VAR NAME="REPOSITORY">"><TMPL_VAR NAME="REPOSITORY"></a>
+            </TMPL_IF>
+          </TMPL_LOOP>
+        </TMPL_IF>
+        <TMPL_IF NAME="IN_REPOSITORY"><a href=".">General administration</a></TMPL_IF>
+        </p>
+      </div>
+    </div>
+
+    <TMPL_IF NAME="IN_REPOSITORY">
+    <div class="container">
+    <h2>Administer repository <a href="/viewvc/<TMPL_VAR NAME="REPOSITORY">/"><TMPL_VAR NAME="REPOSITORY"></a></h2>
+    <TMPL_IF NAME="CAN_CREATE_USERS">
+    <form method="post" action="<TMPL_VAR NAME="REPOSITORY">" enctype="multipart/form-data">
+      <input name="action" value="adduser" type="hidden">
+      <h3>Create Users</h3>
+      <table><tbody>
+          <tr><td>User (Login):</td> <td><input name="newUser" size="30" maxlength="30" type="text"></td></tr>
+          <tr><td>Full name:</td> <td><input name="fullname" size="60" maxlength="80" type="text"></td></tr>
+          <tr><td>Email:</td> <td><input name="email" size="60" maxlength="180" type="text"></td></tr>
+          <tr><td>Passphrase:</td> <td><input name="pwd" size="32" maxlength="80" type="password"></td></tr>
+          <tr><td>Verify passphrase:</td> <td><input name="vpwd" size="32" maxlength="80" type="password"></td></tr>
+          <tr><td rowspan="2"><input name="add" value="Add" type="submit"></td></tr>
+      </tbody></table>
+    </form>
+    </div>
+    <TMPL_ELSE>
+    <div class="container">
+      <TMPL_IF NAME="CAN_CHANGE_PASSWORD">
+      <h2>Change Passphrase</h2>
+      <p>Please enter your new choice of passphrase below, and then verify by entering it again.</p>
+      <p>You can either use a passphrase (preferably of decent length, include punctuation, etc,) or a password.  Good passwords have these properties:</p>
+      <ul>
+        <li>is not based upon a dictionary word</li>
+        <li>does not have numbers substituted for common letters (ie. 3 for E 1 for I, 0 for O, etc) or numbers used as a suffix/prefix (ie.  4sale, 2by4, etc.)</li>
+        <li>is at least 8 characters long (length of 6 to 80 is required)</li>
+        <li>is made up of a combination of non-repeating upper/lower case letters, numbers, and punctuation.</li>
+        <li>is hard to guess ;)</li>
+      </ul>
+      <p>Also note that the passphrase is case-sensitive.</p>
+      <hr/>
+      <form method="post">
+        <input name="action" value="changepw" type="hidden"/>
+        <table><tbody>
+            <tr><td>Passphrase: </td> <td><input name="passphrase" size="32" maxlength="80" type="password"></td><td>(6-80 chars)</td></tr>
+            <tr><td>Verify: </td> <td><input name="verify" size="32" maxlength="80" type="password"></td><td>(6-80 chars)</td></tr>
+        </tbody></table>
+        <input value="Change Passphrase" type="submit"/>
+      </form>
+      </TMPL_IF>
+      <TMPL_IF NAME="CAN_CREATE_REPOSITORY">
+      <h2>Create a new repository</h2>
+      <form method="POST">
+        <input name="action" value="create" type="hidden"/>
+        <table><tbody>
+            <tr><td>Name of new repository: </td> <td><input name="repos" size="20" type="text"></td></td></tr>
+          <tr><td>Administrator: </td> <td><input name="reposadmin" value="<TMPL_VAR NAME="USERNAME">" size="20" type="text"></td></tr>
+        </tbody></table>
+        <input value="Create" type="submit"/>
+      </form>
+      </TMPL_IF>
+    </div>
+    </TMPL_IF>
+    <div class="container">
+    <form method="post" action="<TMPL_VAR NAME="REPOSITORY">" enctype="multipart/form-data">
+      <input name="repos" value="<TMPL_VAR NAME="REPOSITORY">" type="hidden">
+      <input name="action" value="chgroupacl" type="hidden">
+      <h3>Groups</h3>
+      <table style="border:1pt solid;"><tbody>
+          <tr><th>Group</th> <th>Users</th></tr>
+          <TMPL_LOOP NAME="GROUP_LOOP">
+          <tr>
+            <td><input name="grpname[<TMPL_VAR NAME="INDEX">]" value="<TMPL_VAR NAME="GROUPNAME">" type="hidden"><TMPL_VAR NAME="REPOSITORY">-<TMPL_VAR NAME="GROUPNAME"></td>
+            <td><input name="users[<TMPL_VAR NAME="INDEX">]" value="<TMPL_VAR NAME="GROUPUSERS">" size="50" type="text"></td>
+            <td><TMPL_IF NAME="CAN_BE_DELETED"><label><input name="deleteacl" value="<TMPL_VAR NAME="INDEX">" type="checkbox">Delete</label></TMPL_IF></td>
+          </tr>
+          </TMPL_LOOP>
+          <tr>
+            <td>
+              <input name="numgroups" value="<TMPL_VAR NAME="GROUPCOUNT">" type="hidden">
+              <TMPL_VAR NAME="REPOSITORY">-<input name="grpname[<TMPL_VAR NAME="GROUPCOUNT">]" size="15" type="text">
+            </td>
+            <td><select name="l_users[1]" size="5" multiple="multiple">
+              <TMPL_LOOP NAME="AVAILABLE_USERS">
+              <option value="<TMPL_VAR NAME="USERNAME">"><TMPL_VAR NAME="USERNAME"> (<TMPL_VAR NAME="DISPLAYNAME">)</option>
+              </TMPL_LOOP>
+            </td>
+            <td><input type="submit" name="add" value="Add"/></td>
+          </tr>
+          <tr><td align="center" colspan="3"><input type="submit" name="commit" value="Commit Changes"/></td></tr>
+      </tbody></table>
+      <h3>Access Control Table</h3>
+      <table style="border:1pt solid">
+        <tr><th>Path</th> <th>User(group)</th><th>Access</th><th></th></tr>
+        <TMPL_LOOP NAME="PERMISSION_LOOP">
+        <tr>
+          <td><input type="hidden" name="path[<TMPL_VAR NAME="LOOP_ACL_NUMBER"/>]" value="<TMPL_VAR NAME="LOOP_PATH"/>"/>/</td>
+          <td><input type="hidden" name="usergroup[<TMPL_VAR NAME="LOOP_ACL_NUMBER"/>]" value="<TMPL_VAR NAME="LOOP_USER_GROUP"/>"/><TMPL_VAR NAME="LOOP_USER_GROUP"/></td>
+          <td><select name="access[<TMPL_VAR NAME="LOOP_ACL_NUMBER"/>]" >
+            <option selected="selected" value="rw">rw</option>
+            <option value="r">r</option>
+            <option value="">-</option>
+          </select></td>
+          <td><label><input type="checkbox" name="deleteacl" value="<TMPL_VAR NAME="LOOP_ACL_NUMBER"/>"/>Delete</label></td>
+        </tr>
+        </TMPL_LOOP>
+        <!-- TODO: Put loop here for adding permissions. -->
+        <tr>
+          <td><input type="hidden" name="numacl" value="1"/><input type="text" name="path[1]" value="/" size="30" /></td>
+          <td><select name="usergroup[1]" >
+              <option selected="selected" value=""></option>
+              <option value="@Abacus-admins">@Abacus-admins</option>
+          </select></td>
+          <td><select name="access[0]" >
+            <option selected="selected" value="rw">rw</option>
+            <option value="r">r</option>
+            <option value="">-</option>
+          </select></td>
+          <td><input type="submit" name=".submit" value="Add" /></td>
+        </tr>
+        <tr><td align="center" colspan="4">
+            <input type="submit" name="commit" value="Commit Changes" />
+      </td></tr>
+    </table>
+    </form>
+    <p>You can give read/write or read-only rights to a single user or a user group. A user group is
+    denoted by @<TMPL_VAR NAME="REPOSITORY">-&lt;groupname&gt;.  The access rights are valid
+    for the given path and all sub directories.  For details see the 
+    <a href="http://svnbook.red-bean.com/en/1.7/svn.serverconfig.httpd.html#svn.serverconfig.httpd.authz.perdir">Manual</a>.
+    </p><p><strong>Warning:</strong> the ViewCVS script does not always respect path restrictions.  A
+    skilled user with read-only access to one directory of the
+    repository can read the whole repository.  Better use different repositories.</p>
+    </div>
+    </TMPL_IF>
+
+    <div class="row">
+      <div class="span6">
+        <h2>Create a new repository</h2>
+        <form method="post" action="" enctype="multipart/form-data">
+          <fieldset>
+            <input type="hidden" name="action" value="create" />
+            <label>Name of new repository</label>
+            <input type="text" name="repos"  size="20" />
+            <label>Administrator</label>
+            <input type="text" name="reposadmin" value="<TMPL_VAR NAME="USERNAME" ESCAPE="HTML">" size="20" />
+          </fieldset>
+          <input type="submit" name=".submit" value="Create" class="btn btn-primary" />
+        </form>
+      </div>
+      
+      <div class="span6">
+        <h2>Your access rights</h2>
+        
+        <p>You have <strong>read-write</strong> access to the following repositories:</p>
+        <div class="well">
+          <ul class="nav nav-list">
+            <TMPL_LOOP NAME="RW_PATHS"><li><a href="<TMPL_VAR NAME="VIEWVC_URL" ESCAPE="HTML">/<TMPL_VAR NAME="REPOSITORY"><TMPL_VAR NAME="PATH">"><TMPL_VAR NAME="REPOSITORY"></a></li></TMPL_LOOP>
+          </ul>
+        </div>
+        
+        <p>You have <strong>read-only</strong> access to the following repositories:</p>
+        <div class="well">
+          <ul class="nav nav-list">
+            <TMPL_LOOP NAME="RO_PATHS"><li><a href="<TMPL_VAR NAME="VIEWVC_URL" ESCAPE="HTML">/<TMPL_VAR NAME="REPOSITORY"><TMPL_VAR NAME="PATH">"><TMPL_VAR NAME="REPOSITORY"></a></li></TMPL_LOOP>
+          </ul>
+        </div>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="span12">
+        <small>Copyright 2005&ndash;2009 Jochen Hoenicke, Michael M&ouml;ller, Marco L&uuml;bcke; based on code from Theo Van Dinter</small>
+      </div>
+    </div>
+
+  <!-- TODO: Add sections for disabled options - backup and dump, etc. -->
+
+  </div>
+</body>
+</html>
